@@ -15,21 +15,19 @@ int mysystem(char *command) {
     return 1;
   }
   pid = fork();
-  if (pid > 0) {
+  if (pid < 0) {
     return -1;
-  } else if (pid == 0) {
-    execl("/bin/sh", "sh", "-c", command, NULL);
-    exit(127);
-  } else {
+  }
+  if (pid != 0) {
     while(wait(&status) != pid)
     ;
-    if (status >= 0 && status <= 255) {
-      return status;
-    } else {
-      return -1;
-    }
+  } else {
+    execl("/bin/sh", "sh", "-c", command, NULL);
+    exit(127);
   }
+  return status;
 }
+
 
 
 /* 実行例
@@ -38,43 +36,43 @@ int mysystem(char *command) {
 % make
 cc -Wall -std=c99 -o mysysmain mysysmain.c  mysystem.c
 
-//
+//コマンドラインで実行した結果
 % ls -l
 total 616
 -rw-r--r--  1 mitsuya  staff     143  7  4 10:00 Makefile
 -rw-r--r--  1 mitsuya  staff    2795  7  4 10:00 README.md
 -rw-r--r--  1 mitsuya  staff  238232  7  4 10:00 README.pdf
--rwxr-xr-x  1 mitsuya  staff   50358  7  9 13:12 mysysmain
+-rwxr-xr-x  1 mitsuya  staff   50358  7 10 09:14 mysysmain
 -rw-r--r--  1 mitsuya  staff     925  7  4 10:00 mysysmain.c
--rw-r--r--  1 mitsuya  staff     721  7  9 13:12 mysystem.c
+-rw-r--r--  1 mitsuya  staff    2257  7 10 09:13 mysystem.c
 -rw-r--r--  1 mitsuya  staff      90  7  4 10:00 mysystem.h
+
 
 //mysystemとsystemの結果を表示
 % ./mysysmain "ls -l"
 mysystem:
-ls -l: Undefined error: 0
-retval = ffffffff
+total 616
+-rw-r--r--  1 mitsuya  staff     143  7  4 10:00 Makefile
+-rw-r--r--  1 mitsuya  staff    2795  7  4 10:00 README.md
+-rw-r--r--  1 mitsuya  staff  238232  7  4 10:00 README.pdf
+-rwxr-xr-x  1 mitsuya  staff   50358  7 10 09:14 mysysmain
+-rw-r--r--  1 mitsuya  staff     925  7  4 10:00 mysysmain.c
+-rw-r--r--  1 mitsuya  staff    2257  7 10 09:13 mysystem.c
+-rw-r--r--  1 mitsuya  staff      90  7  4 10:00 mysystem.h
+retval = 00000000
 system:
 total 616
-total 616
 -rw-r--r--  1 mitsuya  staff     143  7  4 10:00 Makefile
 -rw-r--r--  1 mitsuya  staff    2795  7  4 10:00 README.md
 -rw-r--r--  1 mitsuya  staff  238232  7  4 10:00 README.pdf
--rwxr-xr-x  1 mitsuya  staff   50358  7  9 13:12 mysysmain
+-rwxr-xr-x  1 mitsuya  staff   50358  7 10 09:14 mysysmain
 -rw-r--r--  1 mitsuya  staff     925  7  4 10:00 mysysmain.c
--rw-r--r--  1 mitsuya  staff     721  7  9 13:12 mysystem.c
--rw-r--r--  1 mitsuya  staff     143  7  4 10:00 Makefile
--rw-r--r--  1 mitsuya  staff      90  7  4 10:00 mysystem.h
--rw-r--r--  1 mitsuya  staff    2795  7  4 10:00 README.md
--rw-r--r--  1 mitsuya  staff  238232  7  4 10:00 README.pdf
--rwxr-xr-x  1 mitsuya  staff   50358  7  9 13:12 mysysmain
--rw-r--r--  1 mitsuya  staff     925  7  4 10:00 mysysmain.c
--rw-r--r--  1 mitsuya  staff     721  7  9 13:12 mysystem.c
+-rw-r--r--  1 mitsuya  staff    2257  7 10 09:13 mysystem.c
 -rw-r--r--  1 mitsuya  staff      90  7  4 10:00 mysystem.h
 retval = 00000000
 
 //引数がない時、使い方を表示
-./mysysmain
+% ./mysysmain
 使い方 : ./mysysmain コマンド文字列
 
 
